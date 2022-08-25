@@ -396,6 +396,45 @@ QGCCameraControl::takePhoto()
     return false;
 }
 
+
+//OZAN TAKE GOPRO_PHOTO_RESOLUTION//-----------------------------------------------------------------------------
+bool
+QGCCameraControl::ozanTakePhoto()
+{
+    qCDebug(CameraControlLog) << "takePhoto()";
+    //-- Check if camera can capture photos or if it can capture it while in Video Mode
+    if(!capturesPhotos()) {
+        qCWarning(CameraControlLog) << "Camera does not handle image capture";
+        return false;
+    }
+    if(cameraMode() == CAM_MODE_VIDEO && !photosInVideoMode()) {
+        qCWarning(CameraControlLog) << "Camera does not handle image capture while in video mode";
+        return false;
+    }
+    if(photoStatus() != PHOTO_CAPTURE_IDLE) {
+        qCWarning(CameraControlLog) << "Camera not idle";
+        return false;
+    }
+    if(!_resetting) {
+        if(capturesPhotos()) {
+            _vehicle->sendMavCommand(
+                _compID,                                                                    // Target component
+                MAV_CMD_IMAGE_START_CAPTURE,                                                // Command id
+                false,                                                                      // ShowError
+                0,                                                                          // Reserved (Set to 0)
+                static_cast<float>(1),   // Duration between two consecutive pictures (in seconds--ignored if single image)
+                0);                 // Number of images to capture total - 0 for unlimited capture
+            _setPhotoStatus(PHOTO_CAPTURE_IN_PROGRESS);
+            _captureInfoRetries = 0;
+            //-- Capture local image as well
+            if(qgcApp()->toolbox()->videoManager()) {
+                qgcApp()->toolbox()->videoManager()->grabImage();
+            }
+            return true;
+        }
+    }
+    return false;
+}
 //-----------------------------------------------------------------------------
 bool
 QGCCameraControl::stopTakePhoto()

@@ -202,6 +202,7 @@ public:
     Q_INVOKABLE virtual void setPhotoMode   ();
     Q_INVOKABLE virtual void toggleMode     ();
     Q_INVOKABLE virtual bool takePhoto      ();
+    Q_INVOKABLE virtual bool ozanTakePhoto      ();//ozan
     Q_INVOKABLE virtual bool stopTakePhoto  ();
     Q_INVOKABLE virtual bool startVideo     ();
     Q_INVOKABLE virtual bool stopVideo      ();

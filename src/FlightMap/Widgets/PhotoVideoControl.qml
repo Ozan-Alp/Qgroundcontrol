@@ -108,7 +108,38 @@ Rectangle {
                 if(_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle && _mavlinkCameraElapsedMode) {
                     _mavlinkCamera.stopTakePhoto()
                 } else {
-                    _mavlinkCamera.takePhoto()
+                    _mavlinkCamera.takePhoto()// kendi fonksiyonunda buraya kendi take photonu koy
+                }
+            }
+        } else if (_onlySimpleCameraAvailable || (_simpleCameraAvailable && _anyVideoStreamAvailable && _videoStreamInPhotoMode && !videoGrabRadio.checked)) {
+            _simplePhotoCaptureIsIdle = false
+            _activeVehicle.triggerSimpleCamera()
+            simplePhotoCaptureTimer.start()
+        } else if (_anyVideoStreamAvailable) {
+            if (_videoStreamInPhotoMode) {
+                _simplePhotoCaptureIsIdle = false
+                _videoStreamManager.grabImage()
+                simplePhotoCaptureTimer.start()
+            } else {
+                if (_videoStreamManager.recording) {
+                    _videoStreamManager.stopRecording()
+                } else {
+                    _videoStreamManager.startRecording()
+                }
+            }
+        }
+    }
+////ozan toggleshooting
+    function ozantoggleShooting() {
+        console.log("toggleShooting", _anyVideoStreamAvailable)
+        if (_mavlinkCamera && _mavlinkCamera.capturesVideo) {
+            if(_mavlinkCameraInVideoMode) {
+                _mavlinkCamera.toggleVideo()
+            } else {
+                if(_mavlinkCameraInPhotoMode && !_mavlinkCameraPhotoCaptureIsIdle && _mavlinkCameraElapsedMode) {
+                    _mavlinkCamera.stopTakePhoto()
+                } else {
+                    _mavlinkCamera.ozanTakePhoto()// buraya kendi take photonu koy
                 }
             }
         } else if (_onlySimpleCameraAvailable || (_simpleCameraAvailable && _anyVideoStreamAvailable && _videoStreamInPhotoMode && !videoGrabRadio.checked)) {
@@ -248,9 +279,10 @@ Rectangle {
         // Take Photo, Start/Stop Video button
         // IMPORTANT: This control supports both mavlink cameras and simple video streams. Do no reference anything here which is not
         // using the unified properties/functions.
+        //PHOTO BUTTONU ozan
         Rectangle {
             Layout.alignment:   Qt.AlignHCenter
-            color:              Qt.rgba(0,0,0,0)
+            color:              Qt.rgba(0,255,0,0)
             width:              ScreenTools.defaultFontPixelWidth * 6
             height:             width
             radius:             width * 0.5
@@ -271,6 +303,36 @@ Rectangle {
                 onClicked:      toggleShooting()
             }
         }
+        //EKLENEN IKINCI BUTON
+        Rectangle {
+                    Layout.alignment:   Qt.AlignHCenter
+                    color:              Qt.rgba(0,0,255,0)
+                    width:              ScreenTools.defaultFontPixelWidth * 6
+                    height:             width
+                    radius:             width * 0.5
+                    border.color:       qgcPal.buttonText
+                    border.width:       3
+
+                    Rectangle {
+                        anchors.centerIn:   parent
+                        width:              parent.width * (_isShootingInCurrentMode ? 0.5 : 0.75)
+                        height:             width
+                        radius:             _isShootingInCurrentMode ? 0 : width * 0.5// photo cekerken radius 0a iniyor kareye donusuyor
+                        color:              _canShootInCurrentMode ? qgcPal.colorGreen : qgcPal.colorGrey
+                        QGCLabel {
+                            anchors.centerIn:   parent
+                            text:           qsTr("Meto")
+                            wrapMode:       Text.WordWrap
+
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill:   parent
+                        enabled:        _canShootInCurrentMode
+                        onClicked:      toggleShooting()
+                    }
+                }
 
         //-- Status Information
         ColumnLayout {
