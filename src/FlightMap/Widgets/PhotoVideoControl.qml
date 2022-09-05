@@ -308,6 +308,7 @@ Rectangle {
                     Layout.alignment:   Qt.AlignHCenter
                     color:              Qt.rgba(0,0,255,0)
                     width:              ScreenTools.defaultFontPixelWidth * 6
+
                     height:             width
                     radius:             width * 0.5
                     border.color:       qgcPal.buttonText
